@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="color-scheme" content="light"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Finance Cockpit Prototype</title>
+<style>
+:root{--navy:#0b2545;--gold:#b08d2b;--ink:#1c2430;--mute:#5b6675;--line:#e4e7eb;--soft:#f6f4ee;--card:#fff;--bg:#f7f8fa;--red:#b3362f;--green:#2f7a4b;--amber:#c7851a;--c1:#2a66b8;--c2:#b08d2b;--c3:#1ba39a;--c4:#8a5fb0;--neu:#9fb3c8}
+*{box-sizing:border-box}html,body{background:var(--bg)}body{margin:0;color:var(--ink);font-family:"Helvetica Neue",Arial,sans-serif;font-size:14px;line-height:1.45}
+.top{background:#fff;color:var(--navy);border-bottom:3px solid var(--gold);padding:14px 22px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.top h1{margin:0;font-size:19px}.top small{color:var(--gold);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;display:block;font-weight:700}
+.badge{background:var(--navy);color:#fff;font-weight:700;font-size:11px;padding:5px 10px;border-radius:20px}
+.disc{background:#fff4d6;color:#6b4e00;font-size:12px;padding:7px 22px;border-bottom:1px solid #ecd9a0}
+nav{display:flex;gap:4px;padding:12px 22px 0;flex-wrap:wrap;max-width:1324px;margin:0 auto}
+nav button{border:1px solid var(--line);background:#fff;color:var(--ink);padding:8px 13px;border-radius:8px;cursor:pointer;font-size:13px}
+nav button.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+main{padding:14px 22px 40px;max-width:1324px;margin:0 auto}
+.tab{display:none}.tab.on{display:block}
+.grid{display:grid;gap:12px;margin-top:12px}.g5{grid-template-columns:repeat(5,1fr)}.g4{grid-template-columns:repeat(4,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g2{grid-template-columns:1fr 1fr}.g21{grid-template-columns:2fr 1fr}.g12{grid-template-columns:1fr 2fr}
+@media (max-width:900px){.g5,.g4,.g3,.g2,.g21,.g12,.ctrl{grid-template-columns:1fr!important}main,nav,.top,.disc{padding-left:16px;padding-right:16px}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;min-width:0;box-shadow:0 1px 2px rgba(11,37,69,.04)}
+.card h3{margin:0 0 2px;font-size:12.5px;text-transform:uppercase;letter-spacing:1px;color:var(--navy)}
+.card .sub{font-size:12px;color:var(--mute);margin:0 0 8px}
+.take{font-size:12.5px;margin-top:8px;padding:7px 10px;background:var(--soft);border-left:3px solid var(--gold);border-radius:0 6px 6px 0}
+.insight{background:var(--navy);color:#fff;border-radius:12px;padding:14px 18px;display:flex;gap:14px;align-items:flex-start}
+.insight .k{font-size:10.5px;letter-spacing:1.5px;font-weight:700;color:#e9cf85;white-space:nowrap;padding-top:3px}
+.insight .t{font-size:16px;font-weight:600;line-height:1.35}.insight .t span{display:block;font-size:12.5px;font-weight:400;color:#c9d4e3;margin-top:3px}
+.tile .l{font-size:12px;color:var(--mute)}.tile .v{font-size:25px;font-weight:700;color:var(--navy);line-height:1.2}.tile .d{font-size:12px;margin-top:2px}
+.neg{color:var(--red)}.pos{color:var(--green)}.amb{color:#96600a}
+table{width:100%;border-collapse:collapse;font-size:13px}th{text-align:left;font-weight:600;color:var(--mute);border-bottom:2px solid var(--line);padding:6px}
+td{padding:6px;border-bottom:1px solid var(--line)}td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}tr.tot td{font-weight:700;border-top:2px solid var(--line)}
+.pill{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700;white-space:nowrap}
+.p-g{background:#dff1e5;color:#1f6b3d}.p-a{background:#fcecd0;color:#8a5a00}.p-r{background:#f8dcda;color:#8f2621}
+.ctrl{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}label{font-size:12px;color:var(--mute);display:block}input[type=range]{width:100%;accent-color:var(--gold)}.out{font-weight:700;color:var(--navy)}
+svg{display:block;overflow:visible}svg text{fill:var(--mute);font-size:11px;font-family:inherit}svg .b{fill:var(--ink);font-weight:700}svg [data-tip]{cursor:default}
+.legend{margin:2px 0 6px}.legend span{display:inline-flex;align-items:center;gap:5px;margin-right:12px;font-size:12px;color:var(--mute)}.legend i{width:10px;height:10px;border-radius:2px;display:inline-block}
+.foot{font-size:11px;color:var(--mute);margin-top:18px}
+#tip{position:fixed;pointer-events:none;background:#0b2545;color:#fff;font-size:12px;padding:6px 9px;border-radius:6px;max-width:260px;opacity:0;transition:opacity .1s;z-index:9;box-shadow:0 4px 14px rgba(0,0,0,.2)}
+.chap{position:relative;padding-top:16px}.chap .no{position:absolute;top:-11px;left:14px;background:var(--gold);color:#fff;font-weight:700;font-size:11px;letter-spacing:1px;padding:3px 9px;border-radius:12px}
+.chap h4{margin:0 0 2px;font-size:15px;color:var(--navy)}.chap p{margin:0 0 6px;font-size:12.5px;color:var(--mute)}
+.rec{display:grid;grid-template-columns:26px 1fr auto;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}.rec:last-child{border:0}
+.rec .n{width:26px;height:26px;border-radius:50%;background:var(--navy);color:#fff;font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center}
+.rec b{color:var(--navy)}.rec .m{font-size:12px;color:var(--mute)}.rec .bar{height:6px;border-radius:3px;background:var(--green);margin-top:5px}
+.rec .imp{font-weight:700;color:var(--green);font-size:15px;white-space:nowrap;text-align:right}.rec .imp small{display:block;font-weight:400;color:var(--mute);font-size:11px}
+</style></head><body>
+<div class="top"><div><small>Candidate prototype · MIS, Budgeting & Forecasting</small><h1>Finance Cockpit — Private Bank Board MIS</h1></div><span class="badge">Period: Aug 2026 YTD</span></div>
+<div class="disc"><b>Illustrative data.</b> Built by Swarup Kumar Mohanty to show approach. 2024–2025 annual totals are calibrated to public disclosures; all 2026 figures, budgets, quarterly splits, RM, product, client and control data are invented for demonstration. Not Emirates Investment Bank data or an EIB product.</div>
+<nav id="nav"></nav>
+<main>
+
+<section class="tab" id="t-story">
+<div class="insight"><div class="k">THE STORY</div><div class="t">Profit is 62% below budget because 70% of income rides on interest rates. Five actions add about AED 15.9m to 2027 profit.<span>Rates fell, deposits left, transformation costs arrived early. The client franchise is growing but under-earning. The fix is on the fee and balance-sheet side.</span></div></div>
+<div class="grid g4" style="margin-top:20px">
+<div class="card chap"><div class="no">1 · WHERE WE ARE</div><h4>Profit AED 16.0m vs 42.0m budget</h4><p>Every month below budget; the gap widened until June.</p><div id="s1"></div></div>
+<div class="card chap"><div class="no">2 · WHY</div><h4>70% of income depends on rates</h4><p>Net interest share of income by quarter. It is falling only because rates are, not because fees grew.</p><div id="s2"></div></div>
+<div class="card chap"><div class="no">3 · WHAT IS HIDDEN</div><h4>Clients grow, fees don't</h4><p>Client assets vs fee income, indexed to Q1 2024 = 100.</p><div id="s3"></div></div>
+<div class="card chap"><div class="no">4 · WHAT NEXT</div><h4>2027 profit: 26.6m, or 42.5m</h4><p>Base case with one more 25bp cut, then with the five actions.</p><div id="s4"></div></div>
+</div>
+<div class="grid g2">
+<div class="card"><h3>Recommended actions, ranked by 2027 profit impact</h3><p class="sub">AED m per year, each with an owner and a date</p><div id="recs"></div></div>
+<div class="card"><h3>Impact vs effort</h3><p class="sub">Bubble size = profit impact. Start top-left.</p><div id="matrix"></div>
+<div class="take"><b>Do first:</b> deposit repricing (2) and the early dual-running exit (5) are high return for low effort. Lombard lending (1) is the biggest structural lever.</div></div>
+</div>
+<div class="card" style="margin-top:12px"><h3>Path to 2027 profit (AED m)</h3><p class="sub">From this year's forecast to next year's profit with actions</p><div id="path"></div></div>
+</section>
+
+<section class="tab" id="t-board">
+<div class="insight"><div class="k">SO WHAT</div><div class="t">For every AED 100 of income, AED 79 now goes on costs. Budget assumed 59.<span>Income fell 17% short while costs ran 11% over. Full-year forecast is AED 23.5m against a 62.0m budget.</span></div></div>
+<div class="grid g4" id="tiles"></div>
+<div class="grid g21">
+<div class="card"><h3>Where the money goes — YTD income to profit (AED m)</h3><p class="sub">Width of each flow = amount. Hover for values.</p><div id="sankey"></div>
+<div class="take">Technology and amortisation (19.7m) now costs more than the bank keeps as profit (16.0m).</div></div>
+<div class="card"><h3>Cost-to-income</h3><p class="sub">YTD, with budget and 2025 markers</p><div id="gauge"></div>
+<div class="take">Back to 60% needs about AED 28m more annual income at today's cost base.</div></div>
+</div>
+<div class="grid g2">
+<div class="card"><h3>Budget → forecast bridge, FY2026 net profit (AED m)</h3><p class="sub">What moved the full-year number from 62.0 to 23.5</p><div id="bridge"></div></div>
+<div class="card"><h3>Monthly net profit (AED m)</h3><div class="legend"><span><i style="background:#0b2545"></i>Actual</span><span><i style="background:#b08d2b"></i>Budget</span><span><i style="background:#9fb3c8"></i>Forecast</span><span><i style="background:#f3d6d3"></i>Gap to budget</span></div><div id="monthly"></div></div>
+</div>
+<div class="grid g2">
+<div class="card"><h3>Income mix by quarter (AED m)</h3><div class="legend"><span><i style="background:var(--c1)"></i>Net interest</span><span><i style="background:var(--c2)"></i>Fees</span><span><i style="background:var(--c3)"></i>Other</span></div><div id="mix"></div>
+<div class="take">Net interest income has fallen from 41m to 23m a quarter. Fees have stayed flat at about 9m.</div></div>
+<div class="card"><h3>Scorecard — actual vs target</h3><p class="sub">Bar = actual as % of target. Line = target.</p><div id="bullets"></div></div>
+</div>
+</section>
+
+<section class="tab" id="t-pl">
+<div class="insight"><div class="k">SO WHAT</div><div class="t">The forecast was cut seven months in a row. It followed actuals instead of leading them.<span>A driver-based forecast (balances × rates, client assets × yield) would have shown most of this gap in February.</span></div></div>
+<div class="grid g21">
+<div class="card"><h3>Income statement — YTD Aug 2026 and full year (AED m)</h3><table id="pl"></table><p class="foot" style="margin-top:8px">Bars show YTD variance to budget; right = favourable. RAG: green within 3%, amber 3–10%, red over 10% adverse.</p></div>
+<div class="card"><h3>Full-year forecast, as it evolved</h3><p class="sub">FY2026 net profit forecast at each month-end (AED m)</p><div id="snail"></div>
+<div class="take">Average monthly revision: −5.5m. Target under the new process: under ±1.5m.</div></div>
+</div>
+<div class="grid g2">
+<div class="card"><h3>What explains the YTD profit gap of 26.0m</h3><p class="sub">AED m by driver, with the owner of each</p><div id="drivers"></div></div>
+<div class="card"><h3>Cost-to-income by month (%)</h3><div class="legend"><span><i style="background:#0b2545"></i>Actual</span><span><i style="background:#b08d2b"></i>Budget</span></div><div id="ci"></div>
+<div class="take">The peak in July is dual-running: legacy and new platform paid for at once.</div></div>
+</div>
+<div class="grid g2">
+<div class="card"><h3>FY2027 budget calendar</h3><p class="sub">Dashed line = today. Bars show each step's window.</p><div id="gantt"></div></div>
+<div class="card"><h3>Recommended actions</h3><div id="recsPL"></div></div>
+</div>
+</section>
+
+<section class="tab" id="t-nii">
+<div class="insight"><div class="k">SO WHAT</div><div class="t" id="niiHead"></div></div>
+<div class="card" style="margin-top:12px"><h3>Scenario controls — FY2027</h3>
+<div class="ctrl">
+<div><label>Policy rate change vs today: <span class="out" id="o-rate"></span></label><input type="range" id="rate" min="-100" max="50" step="25" value="-25"></div>
+<div><label>Deposit beta (share of a cut passed to depositors): <span class="out" id="o-beta"></span></label><input type="range" id="beta" min="30" max="80" step="10" value="50"></div>
+<div><label>Customer deposit growth: <span class="out" id="o-dep"></span></label><input type="range" id="dep" min="-15" max="20" step="1" value="3"></div>
+</div></div>
+<div class="grid g4" id="niiTiles"></div>
+<div class="grid g2">
+<div class="card"><h3>Net interest income, next 18 months (AED m / month)</h3><div class="legend"><span><i style="background:#0b2545"></i>Your scenario</span><span><i style="background:#c9d6e6"></i>Range −100bp to +50bp</span><span><i style="background:#9fb3c8"></i>Flat rates</span></div><div id="fan"></div></div>
+<div class="card"><h3>FY2027 net interest income (AED m) — rate × deposit beta</h3><p class="sub">Outlined cell = your scenario. Red = below today's run-rate of 93m.</p><div id="heat"></div></div>
+</div>
+<div class="grid g2">
+<div class="card"><h3>When balances reprice (AED m)</h3><div class="legend"><span><i style="background:var(--c1)"></i>Assets</span><span><i style="background:var(--c2)"></i>Liabilities</span></div><div id="butterfly"></div>
+<div class="take">AED 200m more assets than liabilities reprice within a month. That gap is why cuts hit income immediately.</div></div>
+<div class="card"><h3>What moves FY2027 profit most (AED m)</h3><p class="sub">Each bar: a plausible swing down and up from the base case</p><div id="tornado"></div></div>
+</div>
+</section>
+
+<section class="tab" id="t-fee">
+<div class="insight"><div class="k">SO WHAT</div><div class="t">39% of client assets sit in execution-only custody earning 16bp. Moving 15% of it to advisory adds about AED 2.7m a year.<span>Fee yield is 34bp against a 38bp target. The gap is product mix, not client numbers.</span></div></div>
+<div class="grid g4" id="feeTiles"></div>
+<div class="grid g2">
+<div class="card"><h3>Where fees come from — assets × yield</h3><p class="sub">Width = client assets, height = fee yield, area = fees. Dashed line = target yield.</p><div id="mekko"></div></div>
+<div class="card"><h3>Client assets flow, YTD (AED bn)</h3><p class="sub">Opening to closing balance</p><div id="aumflow"></div>
+<div class="take">Outflows of 0.73bn cancel almost two-thirds of new money. Retention is worth as much as acquisition.</div></div>
+</div>
+<div class="grid g2">
+<div class="card"><h3>RM teams — who to coach</h3><p class="sub">Bubble size = net new money YTD. Lines = bank average.</p><div id="rmscatter"></div>
+<div class="take">Team D has scale problems and price problems. Team B is large but discounting.</div></div>
+<div class="card"><h3>Client concentration</h3><p class="sub">Share of client assets held by the largest clients</p><div id="lorenz"></div>
+<div class="take">Ten clients hold 31% of assets. Each needs a named retention plan.</div></div>
+</div>
+<div class="grid g2">
+<div class="card"><h3>Try it: shift custody assets into advisory</h3><label>Share of execution-only custody moved: <span class="out" id="o-shift"></span></label><input type="range" id="shift" min="0" max="40" step="5" value="15"><div class="grid g3" id="shiftTiles"></div></div>
+<div class="card"><h3>Recommended actions</h3><div id="recsFee"></div></div>
+</div>
+</section>
+
+<section class="tab" id="t-ctl">
+<div class="insight"><div class="k">SO WHAT</div><div class="t">The monthly pack now lands five working days sooner, with zero unexplained breaks at sign-off.<span>134 manual hours a month removed. One open reconciling item, explained and owned.</span></div></div>
+<div class="grid g4" id="ctlTiles"></div>
+<div class="grid g2">
+<div class="card"><h3>Month-end pack delivery (working day)</h3><div class="legend"><span><i style="background:#0b2545"></i>Actual</span><span><i style="background:#b08d2b"></i>Target WD+5</span></div><div id="close"></div></div>
+<div class="card"><h3>Manual hours per month, before and after automation</h3><div class="legend"><span><i style="background:#9fb3c8"></i>Before</span><span><i style="background:#0b2545"></i>After</span></div><div id="dumb"></div></div>
+</div>
+<div class="grid g2">
+<div class="card"><h3>Data-quality rules by month</h3><div class="legend"><span><i style="background:#2f7a4b"></i>✓ Pass</span><span><i style="background:#c7851a"></i>! Warning</span><span><i style="background:#b3362f"></i>✕ Fail</span></div><div id="dq"></div>
+<div class="take">Two rules still warn: client segment and cost-centre tagging. Both have owners.</div></div>
+<div class="card"><h3>Pack sign-off chain</h3><table id="signoff"></table></div>
+</div>
+<div class="card" style="margin-top:12px"><h3>MIS ↔ general ledger ↔ regulatory tie-out — Aug 2026 close</h3><table id="recon"></table></div>
+</section>
+
+<section class="tab" id="t-tx">
+<div class="insight"><div class="k">SO WHAT</div><div class="t">Spend is on plan, but benefits are running at 30% of plan. Net cost peaks next quarter at AED 2.2m.<span>The programme turns net positive in Q4 2027, or a quarter sooner if dual-running ends early.</span></div></div>
+<div class="grid g4" id="txTiles"></div>
+<div class="grid g2">
+<div class="card"><h3>Cumulative spend vs plan (AED m)</h3><div class="legend"><span><i style="background:#0b2545"></i>Actual</span><span><i style="background:#b08d2b"></i>Plan</span><span><i style="background:#9fb3c8"></i>Forecast</span></div><div id="scurve"></div></div>
+<div class="card"><h3>P&L cost curve (AED m / quarter)</h3><div class="legend"><span><i style="background:var(--c1)"></i>Amortisation</span><span><i style="background:var(--c2)"></i>Dual-running</span><span><i style="background:var(--c3)"></i>Benefits</span></div><div id="curve"></div></div>
+</div>
+<div class="grid g2">
+<div class="card"><h3>Workstreams — share of budget spent</h3><p class="sub">Ring = spent to date. Status from the forecast at completion.</p><div id="rings"></div></div>
+<div class="card"><h3>Recommended actions</h3><div id="recsTx"></div></div>
+</div>
+</section>
+
+<p class="foot">Prototype by Swarup Kumar Mohanty · single HTML file, no external dependencies · In production this would sit on a governed data layer fed from the core banking and GL systems, refreshed daily, with every number traceable to source.</p>
+</main>
+<div id="tip"></div>
+
+<script>
+const $=id=>document.getElementById(id),NS='http://www.w3.org/2000/svg';
+const NAVY='#0b2545',GOLD='#b08d2b',C1='#2a66b8',C2='#b08d2b',C3='#1ba39a',C4='#8a5fb0',NEU='#9fb3c8',RED='#b3362f',GRN='#2f7a4b',AMB='#c7851a',LINE='#e4e7eb';
+const f1=x=>(x<0?'−':'')+Math.abs(x).toFixed(1),sg=x=>(x>0?'+':x<0?'−':'')+Math.abs(x).toFixed(1);
+function S(id,W,H){const c=$(id);c.innerHTML='';const s=document.createElementNS(NS,'svg');s.setAttribute('viewBox',`0 0 ${W} ${H}`);s.setAttribute('width','100%');s.setAttribute('role','img');c.appendChild(s);return s}
+function el(tag,a,p,txt){const e=document.createElementNS(NS,tag);for(const k in a)e.setAttribute(k,a[k]);if(txt!==undefined)e.textContent=txt;p.appendChild(e);return e}
+function T(s,x,y,t,o={}){return el('text',Object.assign({x,y,'text-anchor':o.a||'start',class:o.b?'b':''},o.s?{style:o.s}:{}),s,t)}
+function P(pts){return pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+','+p[1].toFixed(1)).join('')}
+function tbl(id,head,rows,num=[]){$(id).innerHTML='<tr>'+head.map((h,i)=>`<th class="${num.includes(i)?'n':''}">${h}</th>`).join('')+'</tr>'+rows.map(r=>`<tr class="${r._c||''}">`+r.map((c,i)=>`<td class="${num.includes(i)?'n':''}">${c}</td>`).join('')+'</tr>').join('')}
+const pill=s=>s==='G'?'<span class="pill p-g">✓ On track</span>':s==='A'?'<span class="pill p-a">! Watch</span>':'<span class="pill p-r">✕ Off track</span>';
+function tiles(id,arr){$(id).innerHTML=arr.map((t,i)=>`<div class="card tile"><div class="l">${t[0]}</div><div class="v">${t[1]}</div><div class="d ${t[3]||''}">${t[2]}</div><div id="${id}-sp${i}"></div></div>`).join('');arr.forEach((t,i)=>{if(t[4])spark(id+'-sp'+i,t[4],t[5])})}
+function spark(id,d,col){const s=S(id,200,34),mn=Math.min(...d),mx=Math.max(...d),x=i=>4+i*192/(d.length-1),y=v=>30-(v-mn)/(mx-mn||1)*24;el('path',{d:P(d.map((v,i)=>[x(i),y(v)])),fill:'none',stroke:col||NAVY,'stroke-width':2},s);el('circle',{cx:x(d.length-1),cy:y(d[d.length-1]),r:3.5,fill:col||NAVY,stroke:'#fff','stroke-width':2},s)}
+function recs(id,arr){const mx=Math.max(...arr.map(r=>r.i||0),1);$(id).innerHTML=arr.map((r,i)=>`<div class="rec"><div class="n">${r.n||i+1}</div><div><b>${r.t}</b><div class="m">${r.m}</div>${r.i?`<div class="bar" style="width:${Math.max(6,r.i/mx*100)}%"></div>`:''}</div><div class="imp">${r.i?'+'+r.i.toFixed(1)+'m':r.x||''}<small>${r.w}</small></div></div>`).join('')}
+// tooltip
+const tip=$('tip');document.addEventListener('mousemove',e=>{const t=e.target.closest&&e.target.closest('[data-tip]');if(!t){tip.style.opacity=0;return}tip.innerHTML=t.getAttribute('data-tip');tip.style.opacity=1;const w=tip.offsetWidth;tip.style.left=Math.min(window.innerWidth-w-8,e.clientX+14)+'px';tip.style.top=(e.clientY+14)+'px'});
+// generic line chart
+function lineChart(id,o){const W=o.W||560,H=o.H||220,L=o.L||34,R=o.R||14,Tp=14,B=24,s=S(id,W,H),n=o.labels.length,x=i=>L+i*(W-L-R)/(n-1),y=v=>H-B-(v-o.min)/(o.max-o.min)*(H-B-Tp);
+(o.ticks||[]).forEach(v=>{el('line',{x1:L,x2:W-R,y1:y(v),y2:y(v),stroke:LINE},s);T(s,L-6,y(v)+4,o.fmt?o.fmt(v):v,{a:'end'})});
+if(o.band){const up=o.band[0].map((v,i)=>[x(i),y(v)]),dn=o.band[1].map((v,i)=>[x(i),y(v)]).reverse();el('path',{d:P(up.concat(dn))+'Z',fill:o.bandFill||'#c9d6e6',opacity:.75},s)}
+o.series.forEach(se=>{const pts=[];se.d.forEach((v,i)=>{if(v!=null)pts.push([x(i),y(v)])});el('path',{d:P(pts),fill:'none',stroke:se.c,'stroke-width':se.w||2.2,'stroke-dasharray':se.dash||'','stroke-linejoin':'round'},s);
+se.d.forEach((v,i)=>{if(v==null)return;el('circle',{cx:x(i),cy:y(v),r:se.dots?3.5:9,fill:se.dots?se.c:'transparent',stroke:se.dots?'#fff':'none','stroke-width':2,'data-tip':`<b>${se.n}</b><br>${o.labels[i]}: ${o.fmt?o.fmt(v):v}`},s)});
+if(se.end){const last=pts[pts.length-1];T(s,last[0]+6,last[1]+4,se.end,{b:1})}});
+o.labels.forEach((l,i)=>{if(!o.every||i%o.every===0||(i===n-1&&!o.noLast))T(s,x(i),H-6,l,{a:'middle'})});return{s,x,y}}
+
+// tabs
+const TABS=[['story','Executive story'],['board','Board summary'],['pl','Budget vs actual'],['nii','Rate scenarios'],['fee','Fees & clients'],['ctl','Controls'],['tx','Transformation']];
+$('nav').innerHTML=TABS.map(t=>`<button data-t="${t[0]}">${t[1]}</button>`).join('');
+function show(t){if(!$('t-'+t))t='story';document.querySelectorAll('.tab').forEach(s=>s.classList.toggle('on',s.id==='t-'+t));document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));try{localStorage.setItem('cockpitTab2',t)}catch(e){}}
+$('nav').onclick=e=>{if(e.target.dataset.t)show(e.target.dataset.t)};
+let start='story';try{start=localStorage.getItem('cockpitTab2')||'story'}catch(e){}show(start);
+
+// ===== DATA
+const M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const act=[3.2,2.6,1.8,1.4,1.1,1.0,2.3,2.6],bud=[5.8,5.5,5.4,5.3,5.1,5.0,5.0,4.9,5.0,5.0,5.0,5.0],fc=[null,null,null,null,null,null,null,2.6,1.9,1.8,1.9,1.9];
+const Q=['Q1 24','Q2 24','Q3 24','Q4 24','Q1 25','Q2 25','Q3 25','Q4 25','Q1 26','Q2 26'];
+const qN=[41,40,39,37.6,34,32.5,30.4,29,24.5,23],qF=[9.3,9.5,9.6,9.6,8.8,8.9,8.9,8.9,8.6,8.8],qO=[3.8,3.7,3.7,3.7,2.4,2.3,2.2,2.2,1.2,1.1];
+const ACT=[{t:'Lend against client portfolios',m:'Move AED 300m of low-yield placements into Lombard loans at +150bp · Private Banking, Credit',i:4.5,w:'6 months',e:3},{t:'Reprice deposits',m:'Top-50 deposits down 15bp and pass 65% of the next cut · Treasury',i:6.0,w:'60 days',e:2},{t:'Shift custody into advisory',m:'Move 15% of execution-only assets to advisory mandates · PB heads',i:2.7,w:'12 months',e:4},{t:'Close half the yield gap in Teams B and D',m:'Discount approval rules and pricing floor · PB heads, Finance',i:1.5,w:'9 months',e:3},{t:'End dual-running a quarter early',m:'Lock the legacy exit date · CTO',i:1.2,w:'Q1 2027',e:1.5}];
+const ACTr=ACT.map((a,i)=>Object.assign({n:i+1},a)).sort((a,b)=>b.i-a.i);
+
+// ===== STORY
+(function(){const o=lineChart('s1',{W:280,H:130,L:22,R:8,labels:M.slice(0,8),min:0,max:6,ticks:[0,3,6],band:[bud.slice(0,8),act],bandFill:'#f3d6d3',series:[{n:'Budget',c:GOLD,d:bud.slice(0,8),dash:'5 4'},{n:'Actual',c:NAVY,d:act,w:2.5}],every:7})})();
+(function(){const sh=Q.map((_,i)=>qN[i]/(qN[i]+qF[i]+qO[i])*100);lineChart('s2',{W:280,H:130,L:30,R:34,labels:Q,min:60,max:80,ticks:[60,70,80],fmt:v=>Math.round(v)+'%',series:[{n:'Net interest share',c:C1,d:sh,w:2.5,end:Math.round(sh[9])+'%'}],every:9})})();
+(function(){const ca=[100,102,104,105,107,109,111,113,116,119],fe=qF.map(v=>v/qF[0]*100);lineChart('s3',{W:280,H:130,L:30,R:44,labels:Q,min:85,max:125,ticks:[90,100,110,120],series:[{n:'Client assets (index)',c:C3,d:ca,w:2.5,end:'Assets'},{n:'Fee income (index)',c:C2,d:fe,w:2.5,end:'Fees'}],every:9})})();
+(function(){const s=S('s4',280,130),d=[['2026 forecast',23.5,NEU],['2027 base',26.6,NAVY],['2027 with actions',42.5,GRN]];d.forEach((r,i)=>{const y=14+i*38,w=r[1]/45*170;el('rect',{x:0,y,width:w,height:18,rx:4,fill:r[2],'data-tip':`<b>${r[0]}</b><br>AED ${r[1]}m`},s);T(s,w+6,y+13,r[1].toFixed(1)+'m',{b:1});T(s,0,y+31,r[0])})})();
+recs('recs',ACTr);
+(function(){const W=560,H=300,L=46,B=34,s=S('matrix',W,H),x=e=>L+(e-1)/3.5*(W-L-20),y=i=>H-B-(i/7)*(H-B-16);
+el('rect',{x:L,y:16,width:(W-L-20)/2,height:(H-B-16)/2,fill:'#eaf5ee'},s);T(s,L+8,32,'QUICK WINS',{s:'font-weight:700;fill:#1f6b3d;font-size:10px;letter-spacing:1px'});T(s,W-28,32,'BIG BETS',{a:'end',s:'font-weight:700;font-size:10px;letter-spacing:1px'});T(s,L+8,H-B-8,'FILL-INS',{s:'font-size:10px;letter-spacing:1px'});T(s,W-28,H-B-8,'QUESTION',{a:'end',s:'font-size:10px;letter-spacing:1px'});
+el('line',{x1:L,x2:W-20,y1:H-B,y2:H-B,stroke:NEU},s);el('line',{x1:L,x2:L,y1:16,y2:H-B,stroke:NEU},s);el('line',{x1:L+(W-L-20)/2,x2:L+(W-L-20)/2,y1:16,y2:H-B,stroke:LINE},s);el('line',{x1:L,x2:W-20,y1:16+(H-B-16)/2,y2:16+(H-B-16)/2,stroke:LINE},s);
+T(s,(W+L)/2,H-8,'Effort to deliver →',{a:'middle'});const yl=T(s,12,H/2,'Profit impact (AED m) →',{a:'middle'});yl.setAttribute('transform',`rotate(-90 12 ${H/2})`);[0,3.5,7].forEach(v=>T(s,L-6,y(v)+4,v,{a:'end'}));
+ACT.forEach((a,i)=>{const r=10+a.i*3;el('circle',{cx:x(a.e),cy:y(a.i),r,fill:NAVY,opacity:.88,stroke:'#fff','stroke-width':2,'data-tip':`<b>${i+1}. ${a.t}</b><br>+AED ${a.i}m · ${a.w}`},s);const t=T(s,x(a.e),y(a.i)+4,i+1,{a:'middle',s:'fill:#fff;font-weight:700;font-size:12px;pointer-events:none'})})})();
+function waterfall(id,d,o={}){const W=o.W||560,H=o.H||240,L=30,s=S(id,W,H),bw=(W-L)/d.length,mx=o.max,mn=o.min||0,sc=v=>H-34-(v-mn)/(mx-mn)*(H-58);let run=0;
+el('line',{x1:L,x2:W,y1:sc(mn),y2:sc(mn),stroke:NEU},s);
+d.forEach((r,i)=>{const x=L+i*bw+7,w=bw-14;let y0,y1,c;if(r[2]){y0=mn;y1=r[1];c=r[2]===1?NAVY:r[2]===2?NEU:GRN}else{y0=run;y1=run+r[1];c=r[1]<0?RED:GRN}
+if(i<d.length-1)el('line',{x1:x+w,x2:x+bw+7,y1:sc(y1),y2:sc(y1),stroke:NEU,'stroke-dasharray':'2 2'},s);run=y1;
+el('rect',{x,y:sc(Math.max(y0,y1)),width:w,height:Math.max(2,Math.abs(sc(y0)-sc(y1))),fill:c,rx:3,'data-tip':`<b>${r[0]}</b><br>${r[2]?'':(r[1]>0?'+':'')}${r[1]} ${o.unit||'AED m'}${r[3]?'<br>'+r[3]:''}`},s);
+T(s,x+w/2,sc(Math.max(y0,y1))-5,r[2]?r[1].toFixed(o.dp||1):(r[1]>0?'+':'−')+Math.abs(r[1]).toFixed(o.dp||1),{a:'middle',b:1});
+const words=r[0].split('|');words.forEach((wd,k)=>T(s,x+w/2,H-18+k*12,wd,{a:'middle',s:'font-size:10px'}))})}
+waterfall('path',[['FY2026|forecast',23.5,2],['Lower|transf. cost',3.1,0,'Dual-running tapers through 2027'],['One more|25bp cut',-5.9,0],['Deposit|growth 3%',1.5,0],['Fee|growth',4.4,0],['FY2027|base',26.6,1],['2 · Reprice|deposits',6.0],['1 · Lombard|lending',4.5],['3 · Custody →|advisory',2.7],['4 · Yield gap|B and D',1.5],['5 · End dual|running',1.2],['FY2027|with actions',42.5,3]],{max:46,W:1180,H:250});
+
+// ===== BOARD
+tiles('tiles',[['Net profit YTD','16.0m','vs budget 42.0m · −62%','neg',act,RED],['Operating income YTD','88.6m','vs budget 107.3m · −17%','neg',[12.2,11.6,11.0,10.7,10.5,10.4,11.0,11.2],RED],['Fee yield on client assets','34bp','target 38bp · 2025 ~32bp','amb',[32,32,33,33,33,34,34,34],AMB],['Client assets','AED 11.7bn','+6% YTD · budget +9%','pos',[11.0,11.1,11.2,11.3,11.4,11.5,11.6,11.7],GRN]]);
+(function(){const W=760,H=310,s=S('sankey',W,H),k=2.45,nw=14,x0=120,x1=W/2-nw/2,x2=W-190;
+const src=[['Net interest',62.0,C1],['Fees',23.5,C2],['Other',3.1,C3]],dst=[['Staff',38.4,NEU],['Technology & amortisation',19.7,C4],['Premises & admin',12.1,NEU],['Impairment',2.4,NEU],['Net profit',16.0,GRN]];
+const mh=88.6*k,my=(H-mh)/2;let sy=(H-(mh+2*10))/2,mo=my;
+src.forEach(r=>{const h=r[1]*k;el('path',{d:band(x0+nw,sy,x1,mo,h),fill:r[2],opacity:.42,'data-tip':`<b>${r[0]}</b> → Operating income<br>AED ${r[1].toFixed(1)}m · ${(r[1]/88.6*100).toFixed(0)}%`},s);el('rect',{x:x0,y:sy,width:nw,height:Math.max(h,2),fill:r[2],rx:2},s);T(s,x0-8,sy+h/2+1,r[0],{a:'end',b:1});T(s,x0-8,sy+h/2+14,r[1].toFixed(1)+'m',{a:'end'});sy+=h+10;mo+=h});
+el('rect',{x:x1,y:my,width:nw,height:mh,fill:NAVY,rx:2},s);T(s,x1+nw/2,my-8,'Operating income 88.6m',{a:'middle',b:1});
+let dy=(H-(mh+4*10))/2;mo=my;dst.forEach(r=>{const h=r[1]*k;el('path',{d:band(x1+nw,mo,x2,dy,h),fill:r[2],opacity:r[0]==='Net profit'?.55:.42,'data-tip':`<b>${r[0]}</b><br>AED ${r[1].toFixed(1)}m · ${(r[1]/88.6*100).toFixed(0)}% of income`},s);el('rect',{x:x2,y:dy,width:nw,height:Math.max(h,2),fill:r[2],rx:2},s);T(s,x2+nw+8,dy+h/2+1,r[0],{b:1});T(s,x2+nw+8,dy+h/2+14,r[1].toFixed(1)+'m · '+(r[1]/88.6*100).toFixed(0)+'%');dy+=h+10;mo+=h});
+function band(xa,ya,xb,yb,h){const m=(xa+xb)/2;return `M${xa},${ya}C${m},${ya} ${m},${yb} ${xb},${yb}L${xb},${yb+h}C${m},${yb+h} ${m},${ya+h} ${xa},${ya+h}Z`}})();
+(function(){const W=380,H=215,cx=190,cy=165,r=120,s=S('gauge',W,H),a=v=>Math.PI*(1-(v-30)/70),pt=(v,rr)=>[cx+rr*Math.cos(a(v)),cy-rr*Math.sin(a(v))];
+const arc=(v0,v1,c,w)=>{const p0=pt(v0,r),p1=pt(v1,r);el('path',{d:`M${p0[0]},${p0[1]}A${r},${r} 0 0 1 ${p1[0]},${p1[1]}`,fill:'none',stroke:c,'stroke-width':w,'stroke-linecap':'round'},s)};
+arc(30,100,'#e9edf2',22);arc(30,79,RED,22);
+[[59,'Budget 59%',GOLD],[44,'2025: 44%',NAVY]].forEach(m=>{const p0=pt(m[0],r-16),p1=pt(m[0],r+16),pl=pt(m[0],r+30);el('line',{x1:p0[0],y1:p0[1],x2:p1[0],y2:p1[1],stroke:m[2],'stroke-width':3.5,'data-tip':m[1]},s);T(s,pl[0],pl[1],m[1],{a:m[0]<65?'end':'start',b:1,s:'font-size:10.5px'})});
+T(s,cx,cy-22,'79%',{a:'middle',s:'font-size:44px;font-weight:700;fill:#0b2545'});T(s,cx,cy+2,'of income spent on costs',{a:'middle'});T(s,cx-r,cy+22,'30%',{a:'middle'});T(s,cx+r,cy+22,'100%',{a:'middle'})})();
+waterfall('bridge',[['Budget',62,1],['NII|rate',-12,0,'Rates ~50bp below budget path'],['NII|volume',-5,0,'Average deposits 6% below plan'],['Fees',-6,0,'Relaunch slipped a quarter'],['Other|income',-3],['Opex|transf.',-9,0,'Amortisation early + dual-running'],['Opex|BAU',-3],['Provi-|sions',-0.5],['Forecast',23.5,2]],{max:68});
+lineChart('monthly',{labels:M,min:0,max:7,ticks:[0,2,4,6],band:[bud.slice(0,8).concat([null,null,null,null]).filter(v=>v!=null),act],bandFill:'#f3d6d3',series:[{n:'Budget',c:GOLD,d:bud,dash:'5 4'},{n:'Forecast',c:NEU,d:fc,dash:'3 3'},{n:'Actual',c:NAVY,d:act,w:2.6,dots:1}]});
+(function(){const W=560,H=230,L=30,B=24,s=S('mix',W,H),bw=(W-L)/Q.length,y=v=>H-B-v*(H-B-18)/60;[0,20,40,60].forEach(v=>{el('line',{x1:L,x2:W,y1:y(v),y2:y(v),stroke:LINE},s);T(s,L-6,y(v)+4,v,{a:'end'})});
+Q.forEach((q,i)=>{let b=0;[[qN[i],C1,'Net interest'],[qF[i],C2,'Fees'],[qO[i],C3,'Other']].forEach(r=>{const h=r[0]*(H-B-18)/60;el('rect',{x:L+i*bw+7,y:y(b+r[0])+1,width:bw-14,height:Math.max(h-2,1),fill:r[1],rx:2,'data-tip':`<b>${q} · ${r[2]}</b><br>AED ${r[0]}m`},s);b+=r[0]});T(s,L+i*bw+bw/2,y(b)-5,Math.round(b),{a:'middle',b:1});T(s,L+i*bw+bw/2,H-7,q,{a:'middle',s:'font-size:10px'})})})();
+(function(){const d=[['Net interest margin','2.35%','2.70%',87,'R'],['Fee yield','34bp','38bp',89,'A'],['Net new money YTD','AED 420m','AED 650m',65,'A'],['Revenue per RM','AED 6.2m','AED 7.0m',89,'A'],['Cost-to-income (inverted)','79%','59%',75,'R'],['Capital adequacy','41%','> 13% min.',120,'G'],['Pack delivery','WD+6','WD+5',83,'A']];
+const W=560,RH=32,s=S('bullets',W,d.length*RH+6),x0=170,bw=170;d.forEach((r,i)=>{const y=i*RH+8,c=r[4]==='G'?GRN:r[4]==='A'?AMB:RED;T(s,0,y+13,r[0],{s:'font-size:12px;fill:#1c2430'});el('rect',{x:x0,y:y+2,width:bw,height:14,rx:4,fill:'#eef1f4'},s);el('rect',{x:x0,y:y+2,width:Math.min(r[3],120)/120*bw,height:14,rx:4,fill:c,'data-tip':`<b>${r[0]}</b><br>Actual ${r[1]} · target ${r[2]}<br>${r[3]}% of target`},s);el('line',{x1:x0+100/120*bw,x2:x0+100/120*bw,y1:y-2,y2:y+20,stroke:NAVY,'stroke-width':2.5},s);T(s,x0+bw+10,y+13,r[1],{b:1});T(s,W,y+13,'target '+r[2],{a:'end'})})})();
+
+// ===== P&L
+const PL=[['Net interest income',62.0,74.0,93.0,110.0],['Fee & commission income',23.5,28.0,36.0,42.0],['Other income',3.1,5.3,5.0,8.0],['Operating income',88.6,107.3,134.0,160.0,1],['Staff costs',-38.4,-37.0,-57.0,-56.0],['Premises & admin',-12.1,-12.5,-18.0,-19.0],['Technology & amortisation',-19.7,-13.8,-32.0,-20.0],['Operating expenses',-70.2,-63.3,-107.0,-95.0,1],['Impairment / ECL',-2.4,-2.0,-3.5,-3.0],['Net profit',16.0,42.0,23.5,62.0,1]];
+const rag=(a,b)=>{const v=(a-b)/Math.abs(b)*100;return v>=-3?'G':v>=-10?'A':'R'};
+tbl('pl',['Line','YTD actual','YTD budget','Var','Variance','FY forecast','FY budget','RAG'],PL.map(r=>{const v=r[1]-r[2],w=Math.min(48,Math.abs(v)/26*48);const bar=`<svg width="100" height="14" viewBox="0 0 100 14" style="display:inline-block"><line x1="50" x2="50" y1="0" y2="14" stroke="#9fb3c8"/><rect x="${v<0?50-w:50}" y="3" width="${Math.max(w,1)}" height="8" rx="2" fill="${v<0?RED:GRN}"/></svg>`;const row=[r[0],f1(r[1]),f1(r[2]),`<span class="${v>=0?'pos':'neg'}">${sg(v)}</span>`,bar,f1(r[3]),f1(r[4]),pill(rag(r[1],r[2]))];if(r[5])row._c='tot';return row}),[1,2,3,5,6]);
+(function(){const d=[62,58,49,40,33,27,24.5,23.5];const o=lineChart('snail',{W:380,H:230,labels:M.slice(0,8),min:0,max:70,ticks:[0,20,40,60],series:[{n:'Budget',c:GOLD,d:d.map(_=>62),dash:'5 4',end:''},{n:'FY forecast',c:NAVY,d,w:2.6,dots:1}]});T(o.s,o.x(7)-4,o.y(62)-7,'Budget 62.0',{a:'end',b:1});T(o.s,o.x(7)-4,o.y(23.5)+18,'Now 23.5',{a:'end',b:1})})();
+(function(){const d=[['Rate path 50bp below budget',-7.9,'Treasury'],['Relaunch slipped Q2 → Q3',-4.5,'Marketing, PB'],['Average deposits 6% below plan',-4.1,'Private Banking'],['Amortisation started early',-3.9,'CFO, CTO'],['Other income and other',-3.2,'Finance'],['Dual-running legacy + new',-2.0,'CTO'],['Impairment',-0.4,'Risk']];
+const W=560,RH=30,s=S('drivers',W,d.length*RH+4),x0=250,sc=28;d.forEach((r,i)=>{const y=i*RH+4;T(s,0,y+15,r[0],{s:'font-size:12px;fill:#1c2430'});const w=-r[1]*sc;el('rect',{x:x0,y:y+3,width:w,height:16,rx:4,fill:RED,opacity:.35+.65*(-r[1]/7.9),'data-tip':`<b>${r[0]}</b><br>AED ${r[1]}m · owner ${r[2]}`},s);T(s,x0+w+6,y+15,sg(r[1]),{b:1});T(s,W,y+15,r[2],{a:'end'})})})();
+lineChart('ci',{labels:M.slice(0,8),min:50,max:95,ticks:[50,60,70,80,90],fmt:v=>v+'%',series:[{n:'Budget',c:GOLD,d:[58,59,59,59,59,60,59,59],dash:'5 4'},{n:'Actual',c:NAVY,d:[66,70,76,80,83,85,88,82],w:2.6,dots:1,end:'82%'}],R:36});
+(function(){const d=[['Calendar & assumptions issued',0,3,'G'],['ALCO signs rate, FX, headcount',3,14,'G'],['Business-line submissions',10,36,'A'],['Challenge sessions',42,54,''],['Consolidated draft to CFO',54,64,''],['EXCO review',64,78,''],['Board committees',85,100,''],['Board approval',100,108,'']];
+const W=560,RH=26,s=S('gantt',W,d.length*RH+26),x0=215,sc=(W-x0-10)/110;['Sep','Oct','Nov','Dec'].forEach((m,i)=>{const x=x0+i*30*sc;el('line',{x1:x,x2:x,y1:14,y2:d.length*RH+18,stroke:LINE},s);T(s,x+3,10,m)});
+el('line',{x1:x0+33*sc,x2:x0+33*sc,y1:14,y2:d.length*RH+18,stroke:RED,'stroke-width':1.5,'stroke-dasharray':'3 3'},s);T(s,x0+33*sc+4,d.length*RH+24,'today',{s:'fill:#b3362f;font-size:10px'});
+d.forEach((r,i)=>{const y=i*RH+20;T(s,0,y+12,r[0],{s:'font-size:12px;fill:#1c2430'});el('rect',{x:x0+r[1]*sc,y:y+2,width:(r[2]-r[1])*sc,height:14,rx:4,fill:r[3]==='G'?GRN:r[3]==='A'?AMB:NEU,'data-tip':`<b>${r[0]}</b><br>${r[3]==='G'?'Done':r[3]==='A'?'In progress, 3 of 7 received':'Not started'}`},s)})})();
+recs('recsPL',[{t:'Switch to a driver-based rolling forecast',m:'Balances × rates × beta for interest income; client assets × yield for fees',x:'±1.5m',w:'revision target'},{t:'Lock the amortisation start date with auditors',m:'Removes a 3.9m timing surprise from the forecast',x:'3.9m',w:'clarity'},{t:'Publish forecast accuracy every month',m:'Each business head sees their own forecast against actual',x:'Monthly',w:'from Oct'}]);
+
+// ===== RATES
+const nii=(r,b,g)=>93+4000*r/1e4-3300*(b/100)*r/1e4+3300*(g/100)*0.015;
+function runNII(){const r=+$('rate').value,b=+$('beta').value,g=+$('dep').value;$('o-rate').textContent=(r>0?'+':'')+r+'bp';$('o-beta').textContent=b+'%';$('o-dep').textContent=(g>0?'+':'')+g+'%';
+const n=nii(r,b,g),flat=nii(0,b,g),np=n+46-108,oi=n+46,per=nii(-25,b,g)-flat,gap=62-np,feeNeed=Math.max(0,(93-n))/11.7*10;
+$('niiHead').innerHTML=`${r<0?`A ${-r}bp cut`:r>0?`A ${r}bp rise`:'Flat rates'} gives FY2027 net interest income of AED ${n.toFixed(1)}m and profit of ${np.toFixed(1)}m.<span>${n<93?`To replace the lost interest income with fees, fee yield must rise by ${feeNeed.toFixed(1)}bp on today's client assets.`:'Interest income holds above today\'s run-rate; use the room to build fee income.'} Each 25bp cut costs ${Math.abs(per).toFixed(1)}m at ${b}% deposit beta.</span>`;
+tiles('niiTiles',[['FY2027 net interest income',n.toFixed(1)+'m',sg(n-93)+'m vs today\'s run-rate',n<93?'neg':'pos'],['FY2027 net profit',np.toFixed(1)+'m','fees 40m, other 6m, costs 108m held',np<25?'neg':''],['Cost-to-income',(105/oi*100).toFixed(0)+'%','opex 105m ÷ income '+oi.toFixed(0)+'m',''],['Cost of each 25bp cut',f1(per)+'m','at '+b+'% deposit beta','neg']]);
+const ramp=t=>Array.from({length:18},(_,i)=>(93+(t-93)*Math.min(1,i/6))/12),lab=Array.from({length:18},(_,i)=>M[(8+i)%12]+(i===0?' 26':i===4?' 27':i===16?' 28':''));
+lineChart('fan',{labels:lab,min:4.5,max:9,ticks:[5,6,7,8,9],fmt:v=>(+v).toFixed(1),band:[ramp(nii(50,b,g)),ramp(nii(-100,b,g))],series:[{n:'Flat rates',c:NEU,d:ramp(flat),dash:'4 3'},{n:'Your scenario',c:NAVY,d:ramp(n),w:2.8,end:(n/12).toFixed(1)}],every:4,noLast:1,R:30});
+const rates=[-100,-75,-50,-25,0,25,50],betas=[80,70,60,50,40,30],W=560,H=250,L=70,Tp=22,cw=(W-L)/rates.length,ch=(H-Tp-20)/betas.length,s=S('heat',W,H);
+rates.forEach((rt,j)=>T(s,L+j*cw+cw/2,14,(rt>0?'+':'')+rt+'bp',{a:'middle'}));T(s,0,H-4,'Deposit beta ↑   ·   Rate change →');
+betas.forEach((bt,i)=>{T(s,L-8,Tp+i*ch+ch/2+4,bt+'%',{a:'end'});rates.forEach((rt,j)=>{const v=nii(rt,bt,g),d=v-93,t=Math.min(1,Math.abs(d)/28),col=mix('#eef0f3',d<0?RED:C1,t),sel=rt===r&&bt===b;
+el('rect',{x:L+j*cw+1,y:Tp+i*ch+1,width:cw-2,height:ch-2,rx:4,fill:col,stroke:sel?NAVY:'none','stroke-width':3,'data-tip':`<b>${(rt>0?'+':'')+rt}bp · beta ${bt}%</b><br>NII AED ${v.toFixed(1)}m (${sg(d)}m)`},s);T(s,L+j*cw+cw/2,Tp+i*ch+ch/2+4,v.toFixed(0),{a:'middle',s:`font-weight:${sel?700:400};fill:${t>.55?'#fff':'#1c2430'};pointer-events:none`})})})}
+function mix(a,b,t){const h=c=>[1,3,5].map(i=>parseInt(c.slice(i,i+2),16)),A=h(a),B=h(b);return '#'+A.map((v,i)=>Math.round(v+(B[i]-v)*t).toString(16).padStart(2,'0')).join('')}
+['rate','beta','dep'].forEach(i=>$(i).oninput=runNII);runNII();
+(function(){const bk=['Under 1 month','1–3 months','3–6 months','6–12 months','1–3 years','Over 3 years'],as=[2100,900,600,400,450,330],li=[1900,700,450,250,100,0];
+const W=560,RH=30,s=S('butterfly',W,bk.length*RH+18),c=W/2,sc=(W/2-70)/2200;T(s,c-60,10,'Assets',{a:'end'});T(s,c+60,10,'Liabilities');
+bk.forEach((b,i)=>{const y=i*RH+18;T(s,c,y+15,b,{a:'middle',s:'font-size:11px;fill:#1c2430'});el('rect',{x:c-55-as[i]*sc,y:y+3,width:as[i]*sc,height:16,rx:4,fill:C1,'data-tip':`<b>${b}</b><br>Assets AED ${as[i]}m<br>Gap ${sg(as[i]-li[i]).replace('.0','')}m`},s);el('rect',{x:c+55,y:y+3,width:Math.max(li[i]*sc,1),height:16,rx:4,fill:C2,'data-tip':`<b>${b}</b><br>Liabilities AED ${li[i]}m`},s);T(s,c-59-as[i]*sc,y+15,as[i].toLocaleString(),{a:'end'});T(s,c+59+li[i]*sc,y+15,li[i].toLocaleString())})})();
+(function(){const d=[['Policy rate ±25bp',-5.9,5.9],['Fee yield ±3bp',-3.5,3.5],['Operating cost ±3%',-3.2,3.2],['Deposit balances ±5%',-2.5,2.5],['Impairment ±1.5m',-1.5,1.5],['Deposit beta ±10pts',-0.8,0.8]];
+const W=560,RH=30,s=S('tornado',W,d.length*RH+22),x0=165,c=x0+(W-x0-30)/2,sc=(W-x0-30)/2/6.5;el('line',{x1:c,x2:c,y1:0,y2:d.length*RH,stroke:NEU},s);T(s,c,d.length*RH+16,'Base 26.6m',{a:'middle',b:1});
+d.forEach((r,i)=>{const y=i*RH+2;T(s,0,y+16,r[0],{s:'font-size:12px;fill:#1c2430'});el('rect',{x:c+r[1]*sc,y:y+4,width:-r[1]*sc-1,height:16,rx:4,fill:RED,'data-tip':`<b>${r[0]}</b><br>Downside ${r[1]}m`},s);el('rect',{x:c+1,y:y+4,width:r[2]*sc-1,height:16,rx:4,fill:GRN,'data-tip':`<b>${r[0]}</b><br>Upside +${r[2]}m`},s);T(s,c+r[1]*sc-5,y+16,f1(r[1]),{a:'end'});T(s,c+r[2]*sc+5,y+16,'+'+r[2])})})();
+
+// ===== FEES
+tiles('feeTiles',[['Client assets','AED 11.7bn','+6% YTD','pos',[11.0,11.1,11.2,11.3,11.4,11.5,11.6,11.7],GRN],['Fee yield (run-rate)','34bp','target 38bp · gap worth 4.7m','amb'],['Net new money YTD','AED 420m','65% of plan','amb',[60,110,150,210,260,310,370,420],AMB],['Top-10 clients','31%','of client assets','amb']]);
+const PROD=[['Discretionary',1.4,85,92,C1],['Advisory',2.1,55,62,C3],['Structured',0.9,70,75,C4],['Execution-only custody',4.6,16,20,C2],['Deposits & cash',2.7,10,10,NEU]];
+(function(){const W=560,H=270,L=34,B=38,s=S('mekko',W,H),tot=11.7,xs=(W-L-6)/tot,y=v=>H-B-v*(H-B-14)/100;[0,25,50,75,100].forEach(v=>{el('line',{x1:L,x2:W,y1:y(v),y2:y(v),stroke:LINE},s);T(s,L-6,y(v)+4,v,{a:'end'})});T(s,0,9,'bp');
+let x=L;PROD.forEach(p=>{const w=p[1]*xs,fee=p[1]*p[2]/10,up=p[1]*(p[3]-p[2])/10;el('rect',{x:x+1,y:y(p[2]),width:w-2,height:y(0)-y(p[2]),fill:p[4],rx:3,'data-tip':`<b>${p[0]}</b><br>Assets AED ${p[1]}bn × ${p[2]}bp = fees ${fee.toFixed(1)}m<br>At target ${p[3]}bp: +${up.toFixed(1)}m`},s);el('line',{x1:x+1,x2:x+w-1,y1:y(p[3]),y2:y(p[3]),stroke:NAVY,'stroke-width':2,'stroke-dasharray':'5 3'},s);
+T(s,x+w/2,y(Math.max(p[2],p[3]))-6,fee.toFixed(1)+'m',{a:'middle',b:1});const nm=p[0].split(' ');T(s,x+w/2,H-22,w<70?nm[0]:p[0].replace(' custody',''),{a:'middle',s:'font-size:10.5px'});T(s,x+w/2,H-9,p[1]+'bn · '+p[2]+'bp',{a:'middle',s:'font-size:10px'});x+=w})})();
+waterfall('aumflow',[['Opening',10.99,1],['Inflows',1.15],['Outflows',-0.73],['Market|& FX',0.29],['Closing',11.70,2]],{max:12.4,min:9.5,unit:'AED bn',dp:2,H:230});
+(function(){const d=[['A','UAE nationals',2850,36,140],['B','Expat HNW',2420,31,95],['C','Family offices',3310,38,160],['D','NRI / South Asia',1640,25,15],['E','Corporate owners',1480,37,10]];
+const W=560,H=280,L=40,B=34,s=S('rmscatter',W,H),x=v=>L+(v-1000)/2800*(W-L-20),y=v=>H-B-(v-20)/22*(H-B-14);
+[20,25,30,35,40].forEach(v=>{el('line',{x1:L,x2:W-20,y1:y(v),y2:y(v),stroke:LINE},s);T(s,L-6,y(v)+4,v,{a:'end'})});[1000,2000,3000].forEach(v=>T(s,x(v),H-18,v.toLocaleString(),{a:'middle'}));
+T(s,(W+L)/2,H-4,'Client assets (AED m) →',{a:'middle'});T(s,0,9,'Yield (bp)');
+el('line',{x1:L,x2:W-20,y1:y(34),y2:y(34),stroke:GOLD,'stroke-dasharray':'5 4','stroke-width':1.5},s);T(s,L+4,y(34)+13,'Bank average 34bp');el('line',{x1:x(2340),x2:x(2340),y1:14,y2:H-B,stroke:GOLD,'stroke-dasharray':'5 4','stroke-width':1.5},s);
+d.forEach(r=>{const rr=8+Math.sqrt(r[4])*1.6,c=r[3]<30?RED:r[3]<34?AMB:NAVY;el('circle',{cx:x(r[2]),cy:y(r[3]),r:rr,fill:c,opacity:.88,stroke:'#fff','stroke-width':2,'data-tip':`<b>Team ${r[0]} — ${r[1]}</b><br>Assets AED ${r[2].toLocaleString()}m · yield ${r[3]}bp<br>Net new money AED ${r[4]}m`},s);T(s,x(r[2]),y(r[3])+4,r[0],{a:'middle',s:'fill:#fff;font-weight:700;pointer-events:none'});T(s,x(r[2]),y(r[3])+rr+13,r[1],{a:'middle',s:'font-size:10.5px'})})})();
+(function(){const pts=[[0,0],[2.8,31],[14,62],[30,80],[50,91],[75,97],[100,100]],W=560,H=250,L=36,B=30,s=S('lorenz',W,H),x=v=>L+v/100*(W-L-16),y=v=>H-B-v/100*(H-B-12);
+[0,25,50,75,100].forEach(v=>{el('line',{x1:L,x2:W-16,y1:y(v),y2:y(v),stroke:LINE},s);T(s,L-6,y(v)+4,v+'%',{a:'end'});T(s,x(v),H-14,v+'%',{a:'middle'})});T(s,(W+L)/2,H-1,'Share of clients, largest first →',{a:'middle'});
+el('path',{d:P(pts.map(p=>[x(p[0]),y(p[1])]))+`L${x(100)},${y(0)}Z`,fill:C1,opacity:.14},s);el('path',{d:P([[x(0),y(0)],[x(100),y(100)]]),stroke:NEU,'stroke-dasharray':'4 3',fill:'none'},s);T(s,x(72),y(64),'If every client were equal',{s:'font-size:10.5px'});
+el('path',{d:P(pts.map(p=>[x(p[0]),y(p[1])])),fill:'none',stroke:C1,'stroke-width':2.6},s);
+[[2.8,31,'Top 10 clients hold 31%'],[14,62,'Top 50 hold 62%']].forEach(p=>{el('circle',{cx:x(p[0]),cy:y(p[1]),r:5,fill:NAVY,stroke:'#fff','stroke-width':2,'data-tip':p[2]},s);T(s,x(p[0])+10,y(p[1])+4,p[2],{b:1})})})();
+function runShift(){const v=+$('shift').value,moved=4.6*v/100,up=moved*(55-16)/10,ny=(39.8+up)/11.7*10;$('o-shift').textContent=v+'% · AED '+moved.toFixed(2)+'bn';tiles('shiftTiles',[['Extra fees per year','+'+up.toFixed(1)+'m','16bp → 55bp','pos'],['New fee yield',ny.toFixed(1)+'bp','target 38bp',ny>=38?'pos':'amb'],['Clients to convert','~'+Math.round(v*1.4),'of about 140 custody clients','']])}
+$('shift').oninput=runShift;runShift();
+recs('recsFee',[{t:'Advisory conversion campaign',m:'Target the 40 largest execution-only clients first · PB heads',i:2.7,w:'12 months'},{t:'Pricing floor and discount approval',m:'Teams B and D: any fee below 30bp needs sign-off · Finance, PB',i:1.5,w:'9 months'},{t:'Named retention plan for the top 10 clients',m:'31% of assets; quarterly review at EXCO',x:'Protects',w:'AED 3.6bn'}]);
+
+// ===== CONTROLS
+tiles('ctlTiles',[['Pack delivered','WD+6','target WD+5 · was WD+11','amb',[11,11,10,9,8,7,7,6],NAVY],['Unexplained breaks','0','at sign-off','pos'],['Manual hours per month','72','was 206 · −65%','pos',[206,198,180,150,128,104,86,72],GRN],['DQ rules passing','96%','47 of 49 rules','amb',[81,84,88,90,92,94,96,96],GRN]]);
+lineChart('close',{labels:M.slice(0,8),min:3,max:12,ticks:[4,6,8,10,12],fmt:v=>'+'+v,series:[{n:'Target',c:GOLD,d:[5,5,5,5,5,5,5,5],dash:'5 4'},{n:'Delivered on working day',c:NAVY,d:[11,11,10,9,8,7,7,6],w:2.6,dots:1,end:'WD+6'}],R:44});
+(function(){const d=[['Board pack',46,14],['Ad hoc requests',40,22],['EXCO pack',38,10],['Budget vs actual',30,6],['RM scorecards',28,4],['Regulatory support',24,16]];const W=560,RH=30,s=S('dumb',W,d.length*RH+18),x0=150,x=v=>x0+v/50*(W-x0-50);
+[0,10,20,30,40,50].forEach(v=>{el('line',{x1:x(v),x2:x(v),y1:0,y2:d.length*RH,stroke:LINE},s);T(s,x(v),d.length*RH+14,v+'h',{a:'middle'})});
+d.forEach((r,i)=>{const y=i*RH+15;T(s,0,y+4,r[0],{s:'font-size:12px;fill:#1c2430'});el('line',{x1:x(r[2]),x2:x(r[1]),y1:y,y2:y,stroke:'#cfd8e3','stroke-width':5,'stroke-linecap':'round'},s);el('circle',{cx:x(r[1]),cy:y,r:7,fill:NEU,stroke:'#fff','stroke-width':2,'data-tip':`<b>${r[0]}</b><br>Before: ${r[1]}h`},s);el('circle',{cx:x(r[2]),cy:y,r:7,fill:NAVY,stroke:'#fff','stroke-width':2,'data-tip':`<b>${r[0]}</b><br>After: ${r[2]}h (−${Math.round((1-r[2]/r[1])*100)}%)`},s);T(s,x(r[1])+12,y+4,'−'+Math.round((1-r[2]/r[1])*100)+'%',{b:1})})})();
+(function(){const rules=['Account → product & RM','FX rates loaded','No negative deposits','Client segment populated','Cost centre on expenses','MIS total = GL total'],g=['FWWPPPPP','PPPPPPPP','WPPPPPPP','FFFWWWWW','FFWWWWWW','FFWWPPPP'];
+const W=560,RH=28,s=S('dq',W,rules.length*RH+20),x0=190,cw=(W-x0)/8;M.slice(0,8).forEach((m,j)=>T(s,x0+j*cw+cw/2,10,m,{a:'middle'}));
+rules.forEach((r,i)=>{T(s,0,i*RH+33,r,{s:'font-size:12px;fill:#1c2430'});[...g[i]].forEach((c,j)=>{const col=c==='P'?GRN:c==='W'?AMB:RED;el('rect',{x:x0+j*cw+2,y:i*RH+17,width:cw-4,height:RH-4,rx:5,fill:col,opacity:c==='P'?.8:1,'data-tip':`<b>${r}</b><br>${M[j]}: ${c==='P'?'Pass':c==='W'?'Warning':'Fail'}`},s);T(s,x0+j*cw+cw/2,i*RH+33,c==='P'?'✓':c==='W'?'!':'✕',{a:'middle',s:'fill:#fff;font-weight:700;pointer-events:none'})})})})();
+tbl('signoff',['Step','Owner','Day','Status'],[['Data extract & automated checks','MIS team','WD+2',pill('G')],['Reconciliation review','Financial Control','WD+3',pill('G')],['Variance commentary','Business heads','WD+4',pill('A')],['CFO review & sign-off','CFO','WD+5',pill('G')],['Released to EXCO','Director MIS','WD+6',pill('G')]]);
+tbl('recon',['Line','MIS (AED m)','GL (AED m)','Difference','Regulatory return','Explanation','Status'],[['Net interest income YTD','62.04','62.04','0.00','Tied','—',pill('G')],['Fee & commission income YTD','23.52','23.61','−0.09','Tied','Accrual on structured product booked in GL on 31 Aug; MIS picks up 2 Sep',pill('A')],['Operating expenses YTD','70.20','70.20','0.00','n/a','—',pill('G')],['Customer deposits','3,212','3,212','0','Tied','—',pill('G')],['Loans & advances (net)','958','958','0','Tied','—',pill('G')],['ECL stock','17.1','17.1','0.0','Tied','—',pill('G')],['Client assets (off-balance sheet)','11,705','n/a','—','n/a','Custody statement tie-out',pill('G')]],[1,2,3]);
+
+// ===== TRANSFORMATION
+tiles('txTiles',[['Programme budget','AED 60m','2025–2027 · forecast 61.3m','amb'],['Spent to date','AED 44.8m','75% · on plan','pos'],['Capitalised','AED 38.1m','amortised over 7 years',''],['Benefits realised','AED 1.2m','annualised · plan 4.0m','neg']]);
+(function(){const q=['Q1 25','Q2 25','Q3 25','Q4 25','Q1 26','Q2 26','Q3 26','Q4 26','Q1 27','Q2 27','Q3 27','Q4 27'],plan=[3,8,15,23,31,38,44,49,53,56,58,60],a=[2.5,7,14,22.5,30,38.2,44.8],f=[null,null,null,null,null,null,44.8,50.5,55,58,60,61.3];
+const o=lineChart('scurve',{labels:q,min:0,max:65,ticks:[0,20,40,60],series:[{n:'Plan',c:GOLD,d:plan,dash:'5 4'},{n:'Forecast',c:NEU,d:f,dash:'3 3',end:'61.3'},{n:'Actual',c:NAVY,d:a,w:2.6,dots:1}],every:2,R:34})})();
+(function(){const q=['Q3 26','Q4 26','Q1 27','Q2 27','Q3 27','Q4 27','Q1 28','Q2 28'],am=[1.2,1.4,1.5,1.5,1.5,1.5,1.5,1.5],dr=[1.0,1.2,1.0,0.6,0.2,0,0,0],bn=[0.3,0.4,0.7,1.0,1.4,1.8,2.1,2.3];
+const W=560,H=240,L=30,bw=(W-L)/8,k=30,z=120,s=S('curve',W,H);el('line',{x1:L,x2:W,y1:z,y2:z,stroke:NEU},s);[-2,0,2].forEach(v=>T(s,L-6,z-v*k+4,v,{a:'end'}));
+q.forEach((l,i)=>{const x=L+i*bw+9,w=bw-18,net=am[i]+dr[i]-bn[i];el('rect',{x,y:z-am[i]*k,width:w,height:am[i]*k-1,fill:C1,rx:2,'data-tip':`<b>${l}</b><br>Amortisation ${am[i]}m`},s);if(dr[i])el('rect',{x,y:z-(am[i]+dr[i])*k,width:w,height:dr[i]*k-2,fill:C2,rx:2,'data-tip':`<b>${l}</b><br>Dual-running ${dr[i]}m`},s);el('rect',{x,y:z+1,width:w,height:bn[i]*k,fill:C3,rx:2,'data-tip':`<b>${l}</b><br>Benefits ${bn[i]}m`},s);
+T(s,x+w/2,z-(am[i]+dr[i])*k-6,(net>0?'net ':'net ')+sg(-net).replace('+','+'),{a:'middle',b:1,s:`font-size:10.5px;fill:${net>0?RED:GRN}`});T(s,x+w/2,H-6,l,{a:'middle'})})})();
+(function(){const d=[['Core platform',34,27.5,'A'],['Digital channels',8,6.4,'G'],['Brand & relaunch',7,5.2,'A'],['Data & MIS layer',6,3.1,'G'],['Change & training',5,2.6,'G']];const W=560,H=170,s=S('rings',W,H),cw=W/5,r=38,C=2*Math.PI*r;
+d.forEach((w,i)=>{const cx=i*cw+cw/2,p=w[2]/w[1],c=w[3]==='G'?GRN:AMB;el('circle',{cx,cy:60,r,fill:'none',stroke:'#e9edf2','stroke-width':11},s);el('circle',{cx,cy:60,r,fill:'none',stroke:c,'stroke-width':11,'stroke-linecap':'round','stroke-dasharray':`${C*p} ${C}`,transform:`rotate(-90 ${cx} 60)`,'data-tip':`<b>${w[0]}</b><br>Spent ${w[2]}m of ${w[1]}m budget`},s);T(s,cx,65,Math.round(p*100)+'%',{a:'middle',s:'font-size:17px;font-weight:700;fill:#0b2545'});T(s,cx,122,w[0],{a:'middle',s:'font-size:11.5px;fill:#1c2430'});T(s,cx,137,w[2]+' of '+w[1]+'m',{a:'middle'});T(s,cx,153,w[3]==='G'?'✓ On track':'! Watch',{a:'middle',s:`font-weight:700;fill:${w[3]==='G'?'#1f6b3d':'#8a5a00'}`})})})();
+recs('recsTx',[{t:'End dual-running a quarter early',m:'Lock the legacy exit date and decommission plan · CTO',i:1.2,w:'Q1 2027'},{t:'Benefits owner per workstream',m:'Each benefit gets a named business owner and a date; reviewed monthly',x:'2.8m',w:'benefits gap'},{t:'Cap the core platform overrun',m:'Forecast is 1.5m over; change requests need CFO sign-off',x:'1.5m',w:'at risk'}]);
+</script>
+</body></html>
